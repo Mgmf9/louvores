@@ -1,0 +1,61 @@
+name: Publicar site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Montar o site e gerar a lista de louvores
+        run: |
+          mkdir -p louvores _site
+          cp index.html _site/
+          cp -r louvores _site/
+          python3 - <<'EOF'
+          import json, os, subprocess
+          itens = []
+          for nome in sorted(os.listdir("louvores")):
+              if not nome.lower().endswith(".pptx"):
+                  continue
+              caminho = os.path.join("louvores", nome)
+              ts = subprocess.run(
+                  ["git", "log", "-1", "--format=%ct", "--", caminho],
+                  capture_output=True, text=True
+              ).stdout.strip()
+              itens.append({
+                  "name": nome,
+                  "size": os.path.getsize(caminho),
+                  "time": int(ts) * 1000 if ts else 0,
+              })
+          with open("_site/louvores.json", "w", encoding="utf-8") as f:
+              json.dump(itens, f, ensure_ascii=False)
+          print(len(itens), "louvores na lista")
+          EOF
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
