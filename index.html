@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Louvores Online</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='6' width='28' height='20' rx='4' fill='%232C4FB8'/%3E%3Cpath d='M13 12v8l7-4z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: cabeçalho com marca, barra de busca e ordem, grade de cartões. Cada cartão tem uma miniatura de slide com as iniciais do louvor. */
+:root {
+  color-scheme: light;
+  --bg: #EDF0F7;
+  --surface: #FFFFFF;
+  --fg: #111B2E;
+  --muted: #566378;
+  --line: #D6DDE9;
+  --accent: #2C4FB8;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #E1E8FA;
+  --glow: rgba(44, 79, 184, 0.14);
+  --shadow: 0 1px 2px rgba(17, 27, 46, 0.06), 0 8px 24px rgba(17, 27, 46, 0.06);
+  --font-display: 'Bricolage Grotesque', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Source Sans 3', system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0C131E;
+    --surface: #141D2B;
+    --fg: #E8EDF5;
+    --muted: #9AA7BA;
+    --line: #243044;
+    --accent: #8EAAF6;
+    --accent-fg: #0C131E;
+    --accent-soft: #1A2740;
+    --glow: rgba(142, 170, 246, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image: radial-gradient(ellipse 70% 320px at 50% 0, var(--glow), transparent 70%);
+  background-repeat: no-repeat;
+  color: var(--fg);
+  font: 16px/1.5 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  padding-block: 44px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+
+/* cabeçalho */
+header { display: flex; align-items: center; gap: 18px; }
+.mark { flex: none; width: 56px; height: 56px; color: var(--muted); }
+.mark .front { fill: var(--accent); }
+.mark .play { fill: var(--accent-fg); }
+.mark .back { fill: none; stroke: currentColor; stroke-width: 2; opacity: .55; }
+h1 {
+  margin: 0;
+  font: 700 clamp(2rem, 6.5vw, 3.2rem)/1.04 var(--font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.sub { margin: 6px 0 0; color: var(--muted); font-size: 1.08rem; max-width: 52ch; }
+
+.btn {
+  appearance: none;
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: 600 1.05rem/1 var(--font-body);
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(1.08); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+/* barra de busca */
+.lib { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.count { font: 600 1.25rem/1.2 var(--font-display); margin-right: auto; }
+.search { position: relative; flex: 1 1 260px; min-width: 0; max-width: 420px; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+#q {
+  width: 100%;
+  font: 400 1.05rem/1.2 var(--font-body);
+  color: var(--fg);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 14px 13px 44px;
+}
+#q:focus { border-color: var(--accent); outline: none; }
+.seg { display: inline-flex; background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 3px; gap: 2px; }
+.seg button {
+  appearance: none; border: 0; background: transparent; color: var(--muted);
+  font: 600 .92rem/1 var(--font-body); padding: 10px 14px; border-radius: 8px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+
+/* cartões */
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(236px, 1fr)); gap: 20px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.card:hover { transform: translateY(-2px); }
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  background: linear-gradient(145deg, hsl(var(--h1) 52% 34%), hsl(var(--h2) 56% 17%));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px;
+  overflow: hidden;
+}
+.thumb::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 88% 8%, rgba(255, 255, 255, 0.30), transparent 55%);
+  pointer-events: none;
+}
+.thumb .ini { position: relative; font: 700 clamp(2.4rem, 8vw, 3.1rem)/1 var(--font-display); letter-spacing: -0.04em; color: rgba(255, 255, 255, 0.94); }
+.thumb .tag {
+  position: absolute; top: 12px; right: 14px;
+  font: 600 .68rem/1 var(--font-body); letter-spacing: .12em;
+  background: rgba(255, 255, 255, 0.18); padding: 5px 7px; border-radius: 5px;
+}
+.thumb .lines { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.thumb .lines i { display: block; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.36); }
+.thumb .lines i:first-child { width: 58%; }
+.thumb .lines i:last-child { width: 36%; background: rgba(255, 255, 255, 0.22); }
+.body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+.name { font: 600 1.15rem/1.25 var(--font-display); overflow-wrap: anywhere; }
+.meta { color: var(--muted); font-size: .9rem; margin-top: -6px; }
+.card .btn { width: 100%; margin-top: auto; }
+
+.empty { color: var(--muted); font-size: 1.05rem; padding: 36px 0; margin: 0; text-align: center; }
+.help { color: var(--muted); font-size: .95rem; margin: 0; max-width: 62ch; }
+
+@media (max-width: 540px) {
+  header { gap: 14px; }
+  .mark { width: 46px; height: 46px; }
+  .search { max-width: none; flex-basis: 100%; order: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="mark" viewBox="0 0 56 56" aria-hidden="true">
+      <rect class="back" x="14" y="6" width="38" height="24" rx="5"></rect>
+      <rect class="front" x="4" y="22" width="38" height="24" rx="5"></rect>
+      <path class="play" d="M19 30.5v9l8-4.5z"></path>
+    </svg>
+    <div>
+      <h1>Louvores Online</h1>
+      <p class="sub">Os PowerPoints dos louvores num lugar só. Clique em Baixar e abra no PowerPoint.</p>
+    </div>
+  </header>
+
+  <section class="lib" aria-label="Lista de louvores">
+    <div class="tools">
+      <span class="count" id="count">Louvores</span>
+      <div class="search" id="searchBox" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="q" type="search" placeholder="Buscar pelo nome do louvor" autocomplete="off" aria-label="Buscar louvor">
+      </div>
+      <div class="seg" id="seg" role="group" aria-label="Ordem da lista" hidden>
+        <button type="button" id="sortRecent" aria-pressed="true">Mais recentes</button>
+        <button type="button" id="sortAz" aria-pressed="false">A a Z</button>
+      </div>
+    </div>
+    <ul class="grid" id="list"></ul>
+    <p class="empty" id="empty">Carregando…</p>
+    <p class="help" id="help" hidden>Ao clicar em Baixar, o arquivo vai para a pasta Downloads do computador. Depois é só abrir no PowerPoint.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var items = [], term = '', sortBy = 'recent', loaded = false, failed = false;
+  var HUES = [226, 262, 196, 165, 330, 14];
+
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function fmtSize(n) {
+    if (n >= 1048576) return (n / 1048576).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' MB';
+    return Math.max(1, Math.round(n / 1024)).toLocaleString('pt-BR') + ' KB';
+  }
+  function fmtDate(t) {
+    if (!t) return '';
+    try { return new Date(t).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    catch (e) { return ''; }
+  }
+  function baseName(n) { return String(n || '').replace(/\.pptx$/i, ''); }
+  function hashOf(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+  function initials(n) {
+    var clean = baseName(n).replace(/^[^\p{L}]+/u, '');
+    var words = clean.split(/[\s\-_]+/).filter(function (w) { return /^\p{L}/u.test(w); });
+    var out = words.length > 1 ? words[0].charAt(0) + words[1].charAt(0) : clean.slice(0, 2);
+    return (out || '♪').toUpperCase();
+  }
+
+  function render() {
+    var list = $('list');
+    list.textContent = '';
+    $('count').textContent = !loaded ? 'Louvores' : items.length === 1 ? '1 louvor' : items.length + ' louvores';
+    var has = loaded && items.length > 0;
+    $('searchBox').hidden = !has;
+    $('seg').hidden = !has;
+    $('sortRecent').setAttribute('aria-pressed', sortBy === 'recent' ? 'true' : 'false');
+    $('sortAz').setAttribute('aria-pressed', sortBy === 'az' ? 'true' : 'false');
+
+    var t = norm(term);
+    var vis = items.filter(function (r) { return !t || norm(r.name).indexOf(t) !== -1; });
+    vis.sort(function (a, b) {
+      if (sortBy === 'az') return norm(a.name).localeCompare(norm(b.name), 'pt-BR');
+      return (b.time || 0) - (a.time || 0) || norm(a.name).localeCompare(norm(b.name), 'pt-BR');
+    });
+
+    var empty = $('empty');
+    if (!loaded) { empty.hidden = false; empty.textContent = 'Carregando…'; }
+    else if (failed) { empty.hidden = false; empty.textContent = 'Não foi possível carregar a lista de louvores. Atualize a página.'; }
+    else if (items.length === 0) { empty.hidden = false; empty.textContent = 'Nenhum louvor guardado ainda.'; }
+    else if (vis.length === 0) { empty.hidden = false; empty.textContent = 'Nenhum louvor com esse nome.'; }
+    else empty.hidden = true;
+    $('help').hidden = !has;
+
+    vis.forEach(function (r) {
+      var li = document.createElement('li');
+      li.className = 'card';
+
+      var hue = HUES[hashOf(String(r.name)) % HUES.length];
+      var th = document.createElement('div');
+      th.className = 'thumb';
+      th.setAttribute('aria-hidden', 'true');
+      th.style.setProperty('--h1', hue);
+      th.style.setProperty('--h2', (hue + 24) % 360);
+      var ini = document.createElement('span'); ini.className = 'ini'; ini.textContent = initials(r.name);
+      var tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'PPTX';
+      var lines = document.createElement('div'); lines.className = 'lines';
+      lines.appendChild(document.createElement('i')); lines.appendChild(document.createElement('i'));
+      th.appendChild(ini); th.appendChild(tag); th.appendChild(lines);
+
+      var body = document.createElement('div');
+      body.className = 'body';
+      var nm = document.createElement('div');
+      nm.className = 'name';
+      nm.textContent = baseName(r.name);
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      var d = fmtDate(r.time);
+      meta.textContent = fmtSize(r.size || 0) + (d ? ' · ' + d : '');
+
+      var dl = document.createElement('a');
+      dl.className = 'btn';
+      dl.href = 'louvores/' + encodeURIComponent(r.name);
+      dl.setAttribute('download', r.name);
+      dl.textContent = 'Baixar';
+      dl.setAttribute('aria-label', 'Baixar ' + baseName(r.name));
+
+      body.appendChild(nm); body.appendChild(meta); body.appendChild(dl);
+      li.appendChild(th); li.appendChild(body);
+      list.appendChild(li);
+    });
+  }
+
+  $('q').addEventListener('input', function (e) { term = e.target.value; render(); });
+  $('sortRecent').addEventListener('click', function () { sortBy = 'recent'; render(); });
+  $('sortAz').addEventListener('click', function () { sortBy = 'az'; render(); });
+
+  render();
+  fetch('louvores.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+    .then(function (d) { items = Array.isArray(d) ? d : []; loaded = true; render(); })
+    .catch(function () { loaded = true; failed = true; render(); });
+})();
+</script>
+</body>
+</html>
